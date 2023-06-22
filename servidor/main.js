@@ -1,53 +1,53 @@
-import Express from "express"; //conexion con la api
-import cors from "cors"; //Intercambio de recursos de origen cruzado, permite evitar errores
-import db from "./database/db.js"; //conexion base de datos
-import productRoutes from "./routes/routesProducts.js"; //rutas de los productos
-import userRoutes from "./routes/routesUser.js"; //rutas de los usuarios
-import ProductModel from "./models/ProductModel.js"; //modelo de los productos
-import pay from "./routes/pay.js"; //ruta para pagar
-const app = Express(); //la app se conecta con express
+import express from "express";
+import cors from "cors";
+import db from "./database/db.js";
+import productRoutes from "./routes/routesProducts.js";
+import userRoutes from "./routes/routesUser.js";
+import pay from "./routes/pay.js";
+import ProductModel from "./models/ProductModel.js";
 
-app.use(cors()); //prevenir fallas de conexcion
-app.use(Express.json()); //permite obtener el paquete express en un json
-app.use(productRoutes); //se generalizan las rutas de los productos
-app.use(userRoutes); //se generalizan las rutas de los usuarios
-app.use("/",pay); //se generalizan las rutas de los pagos*/
+const app = express();
 
+app.use(cors());
+app.use(express.json());
+app.use(productRoutes);
+app.use(userRoutes);
+app.use("/", pay);
 
-//se busca conectarse a la base de datos
+// Conexión a la base de datos
 try {
-  //db.authenticate();
-  await db.sync({force:false })
-  console.log("conexion exitosa a la bd");
+  await db.authenticate();
+  await db.sync({ force: false });
+  console.log("Conexión exitosa a la base de datos");
 } catch (error) {
-  console.log(`el error de conexion fue ${error}`);
+  console.log(`Error de conexión a la base de datos: ${error}`);
 }
 
-const PORT = 3001; //conexion al servidor backend
-
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
-  console.log(`server running on port ${PORT}`); //info de donde esta corriendo el server
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
 
-
-//usando el modelo de productos, encuentra a todos los productos y devuelve sus correspondientes atributos y se guarda en el objeto en products
+// Obtiene todos los productos de la base de datos
 const products = await ProductModel.findAll({
   attributes: ["id", "stock", "stockmin", "nombre"],
 });
 
-let productsStock = {}; //objeto para guardar el stock minmo de los productos
-let productMinStock = {}; //objeto para guardar el stock minimo de los productos
+const productsStock = {}; // Objeto para guardar el stock de los productos
+const productMinStock = {}; // Objeto para guardar el stock mínimo de los productos
 
-//para cada producto obtenido,
 products.forEach((product) => {
-  productsStock[product.dataValues.id] = product.dataValues.stock; //se le asigna el id correspondiente al producto y a su vez el valor del stock en forma de objeto
+  productsStock[product.dataValues.id] = product.dataValues.stock;
 });
+
 products.forEach((product) => {
   productMinStock[product.dataValues.id] = {
     stockmin: product.dataValues.stockmin,
     nombre: product.dataValues.nombre,
-  }; //se le asigna el id correspondiente al producto y a su vez el valor minimo del stock en forma de objeto, junto con el nomrbe
+  };
 });
+
 console.log(productMinStock);
-export { productsStock, productMinStock }; //exportation de los objetos
+
+export { productsStock, productMinStock };
