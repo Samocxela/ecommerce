@@ -22,8 +22,8 @@ try {
 } catch (error) {
   console.log(`Error de conexión a la base de datos: ${error}`);
 }
-//conexion con variable
-const PORT = process.env.PORT || 3001; 
+
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
